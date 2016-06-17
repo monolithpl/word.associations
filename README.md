@@ -12,6 +12,9 @@ Explore words through [word associations](http://monolithpl.github.io/word.assoc
 - zero dependency pure vanilla javascript + tiny code
 - responsive mobile-first layout
 
+### screenshot / example
+![screenshot](http://monolithpl.github.io/word.associations/word-associations.png "screenshot")
+
 ### demo
 [check it out here](http://monolithpl.github.io/word.associations/)
 
