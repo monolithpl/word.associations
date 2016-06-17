@@ -42,14 +42,20 @@ h1 {
 }
 .word {
 	padding: 5px;
+	margin: 5px;
+	text-decoration: underline;
+	cursor: pointer;
 }
 .marked {
 	background: #b300ff;
 	color: white;
 	font-weight: bold;
+	text-decoration: none;
+	cursor: auto;
 }
 #results {
 	line-height: 45px;
+	width: 100%;
 }
 #canvas {
     position:absolute;
@@ -57,7 +63,7 @@ h1 {
 </style>
 <body>
 	<h1>exploring word associations</h1>
-	<div class="box"><input id="input" placeholder="enter word"></input><button id="search">search</button></div>
+	<div class="box"><input id="input" placeholder="enter word" autofocus></input><button id="search">search</button></div>
 	<div id="results"></div>
 </body>
 <script src="libs.js" type="text/javascript"></script>
@@ -110,7 +116,8 @@ function searchDict(searchTerm){
 			var entry = document.createElement('span')
 			entry.className = "word"
 			entry.innerHTML = entriesArray[entries]
-			results.appendChild(entry, results.childNodes[0])
+			results.appendChild(entry, results.childNodes)
+			results.childNodes[results.childNodes.length-1].scrollIntoView()
 		}
 	})
 }
