@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<title>exploring word associations</title>
+<link href='https://fonts.googleapis.com/css?family=Josefin+Slab:700|Lato|Ubuntu' rel='stylesheet' type='text/css'>
+<style>
+body {
+	font-family: 'Ubuntu', serif;
+	font-size: 16px;
+}
+input {
+	font-family: 'Lato', sans-serif;
+	font-size: 18px;
+	font-weight: bold;
+	appearance: none;
+	border: 2px solid;
+	padding: 10px;
+}
+button {
+	border: 2px solid;
+	line-height: 26px;
+	background-color: black;
+	color: white;
+	font-family: 'Lato', sans-serif;
+	font-size: 18px;
+	font-weight: bold;
+	padding: 10px;
+}
+h1 {
+	font-family: 'Josefin Slab', serif;
+	font-size: 60px;
+	line-height: 35px;
+	font-weight: bold;
+	text-align: center;
+    border-bottom: 3px solid;
+}
+.box {
+	font-family: 'Lato', sans-serif;
+	font-size: 18px;
+	line-height: 20px;
+	font-weight: bold;
+	text-align: center;
+}
+.word {
+	padding: 5px;
+}
+.marked {
+	background: #b300ff;
+	color: white;
+	font-weight: bold;
+}
+#results {
+	line-height: 45px;
+}
+#canvas {
+    position:absolute;
+}
+</style>
+<body>
+	<h1>exploring word associations</h1>
+	<div class="box"><input id="input" placeholder="enter word"></input><button id="search">search</button></div>
+	<div id="results"></div>
+</body>
+<script src="libs.js" type="text/javascript"></script>
+<script type="text/javascript">
+var dictFiles = []
+var dict_urls = ['associations.ifo','associations.idx.dz','associations.dict.dz']
+var nRequest = new Array()
+for (var i=0; i<dict_urls.length; i++){
+	(function(i) {
+		nRequest[i] = new XMLHttpRequest()
+		nRequest[i].open("GET", dict_urls[i], true)
+		nRequest[i].responseType = "arraybuffer"
+		nRequest[i].onload = function () {
+			var blob = new Blob([nRequest[i].response], {type: dict_urls[i]})
+			dictFiles.push(blob)
+			if(dictFiles.length==3) loadDict()
+		}
+		nRequest[i].send()
+	})(i)
+}
+
+var lookup_tbl = {}
+var dict
+
+var searchBox = document.getElementById("input")
+var searchButton = document.getElementById("search")
+var results = document.getElementById('results')
+
+function loadDict() {
+	dict = new StarDict()
+	dict.load(dictFiles)
+	.then(function() {
+		return dict.index({"include_offset" : true,	"include_dictpos" : true, "include_term" : true})})
+	.then(function(idx) {
+		for (var i = 0, len = idx.length; i < len; i++) {
+			lookup_tbl[idx[i].term] = idx[i]
+		}
+	})
+}
+
+function searchDict(searchTerm){
+	if(typeof dict == "undefined" || typeof lookup_tbl == "undefined") return
+	var idx_obj = lookup_tbl[searchTerm]
+	if(typeof idx_obj != "undefined") dict.entry(idx_obj.dictpos).then( function(entry) {
+		var breaker = document.createElement('br')
+		results.appendChild(breaker)
+		
+		var entriesArray = entry.split(',')
+		for (entries in entriesArray) {	
+			var entry = document.createElement('span')
+			entry.className = "word"
+			entry.innerHTML = entriesArray[entries]
+			results.appendChild(entry, results.childNodes[0])
+		}
+	})
+}
+searchButton.addEventListener("click", function(event) {
+	
+})
+results.addEventListener("click", function(event) {
+    if (event.target !== event.currentTarget) {
+        if (event.target.className == "word") {
+			event.target.classList.add('marked')
+			searchDict(event.target.innerHTML)
+			
+			
+			//	<canvas id="canvas" width=100% height=3000></canvas>
+			//var c=document.getElementById("canvas");
+			//var ctx=c.getContext("2d");
+			//ctx.beginPath();
+			//ctx.moveTo(20,20);
+			//ctx.bezierCurveTo(20,100,200,100,200,20);
+			//ctx.stroke();
+
+			//ctx.moveTo(points[0].x, points[0].y);
+			//for (i = 1; i < points.length - 2; i ++)
+			//{
+			//  var xc = (points[i].x + points[i + 1].x) / 2;
+			//  var yc = (points[i].y + points[i + 1].y) / 2;
+			//  ctx.quadraticCurveTo(points[i].x, points[i].y, xc, yc);
+			//}
+			//ctx.quadraticCurveTo(points[i].x, points[i].y, points[i+1].x,points[i+1].y);
+			
+			
+		}
+    }
+    event.stopPropagation();
+});
+
+searchBox.addEventListener("keypress", function(e){
+		if(e.keyCode==13){
+			searchDict(searchBox.value)
+			searchBox.value = ''
+		}
+	});
+</script>
+</html>
